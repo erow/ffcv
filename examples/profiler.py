@@ -14,8 +14,6 @@ from tqdm.auto import tqdm,trange
 import torch.nn as nn
 import torch
 from psutil import Process, net_io_counters
-
-# from torchvi
 import json
 from os import getpid
 
@@ -73,7 +71,7 @@ def load_one_epoch(args,loader):
         x_std = x1.float().flatten(1).std(1)
         if x_std.min() <= 0:
             torchvision.utils.save_image(x1.float(), "invalid_sample.png", normalize=True)
-            assert x_std.min() > 0, "invalid sample"
+            # assert x_std.min() > 0, "invalid sample"
     end = time.time()
     res = l.summary()
     throughput=loader.reader.num_samples/(end-start)

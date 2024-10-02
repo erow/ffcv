@@ -85,3 +85,23 @@ Compared to the original FFCV, this library has the following new features:
 - **lossless compression**: PNG is supported for lossless compression. We use `RGBImageField(mode='png')` to enable the lossless compression.
 
 - **few memory**: We optimize the memory usage and accelerate data loading.
+
+Comparison of throughput:
+
+| img\_size    |     112 |     160 |     192 |   224   |         |         |         |         |    512 |
+|--------------|--------:|--------:|--------:|:-------:|--------:|--------:|--------:|--------:|-------:|
+| batch\_size  |     512 |     512 |     512 |     128 |     256 |   512   |         |         |    512 |
+| num\_workers |      10 |      10 |      10 |      10 |      10 |       5 |      10 |      20 |     10 |
+| loader       |         |         |         |         |         |         |         |         |        |
+| ours         | 23024.0 | 19396.5 | 16503.6 | 16536.1 | 16338.5 | 12369.7 | 14521.4 | 14854.6 | 4260.3 |
+| ffcv         | 16853.2 | 13906.3 | 13598.4 | 12192.7 | 11960.2 |  9112.7 | 12539.4 | 12601.8 | 3577.8 |
+
+Comparison of memory usage:
+| img\_size    |  112 |  160 |  192 | 224 |      |      |      |      |  512 |
+|--------------|-----:|-----:|-----:|:---:|-----:|-----:|-----:|-----:|-----:|
+| batch\_size  |  512 |  512 |  512 | 128 |  256 |  512 |      |      |  512 |
+| num\_workers |   10 |   10 |   10 |  10 |   10 |    5 |   10 |   20 |   10 |
+| loader       |      |      |      |     |      |      |      |      |      |
+| ours         |  9.0 |  9.8 | 11.4 | 5.8 |  7.7 | 11.4 | 11.4 | 11.4 | 34.0 |
+| ffcv         | 13.4 | 14.8 | 17.7 | 7.6 | 11.0 | 17.7 | 17.7 | 17.7 | 56.6 |
+

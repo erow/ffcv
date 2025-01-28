@@ -118,12 +118,11 @@ setup(name='ffcv',
       ext_modules=[libffcv],
       install_requires=[
           'terminaltables',
-          'pytorch_pfn_extras',
+          #'pytorch_pfn_extras',
           'fastargs',
           'opencv-python',
           'assertpy',
           'tqdm',
           'psutil',
           'numba',
-          'PyTurboJPEG',
       ])

@@ -68,36 +68,43 @@ def load_one_epoch(args,loader):
     l=ramqdm(loader)
     
     for x1,y in l:
-        x_std = x1.float().flatten(1).std(1)
-        if x_std.min() <= 0:
-            torchvision.utils.save_image(x1.float(), "invalid_sample.png", normalize=True)
-            # assert x_std.min() > 0, "invalid sample"
+        pass
     end = time.time()
     res = l.summary()
-    throughput=loader.reader.num_samples/(end-start)
+    try:
+        throughput=loader.reader.num_samples/(end-start)
+    except:
+        throughput=len(loader.dataset)/(end-start)
     res['throughput'] = throughput
     x1 = x1.float()
     print("Mean: ", x1.mean().item(), "Std: ", x1.std().item())
     return res
 
 def main(args):
-    # pipe = ThreeAugmentPipeline()
-    pipe = {
-        'image': [RandomResizedCropRGBImageDecoder((args.img_size,args.img_size)),
-            RandomHorizontalFlip(),
-            ToTensor(), 
-            # ToDevice(torch.device('cuda')),
-            ToTorchImage(),
-            # NormalizeImage(IMAGENET_MEAN, IMAGENET_STD, np.float16),            
-            # Convert(torch.float16),
-        ]
-    }
-    loader = Loader(args.data_path, batch_size=args.batch_size, num_workers=args.num_workers, 
-         pipelines=pipe, 
-        batches_ahead=2, distributed=False,seed=0,drop_last=True)
-    
-    decoder = loader.pipeline_specs['image'].decoder    
-    decoder.use_crop_decode = (args.use_ffcv)
+    if args.no_ffcv:
+        tfms = torchvision.transforms.Compose([
+            torchvision.transforms.RandomResizedCrop(args.img_size),
+            torchvision.transforms.RandomHorizontalFlip(),
+            torchvision.transforms.ToTensor(),
+            torchvision.transforms.Normalize(IMAGENET_MEAN/255, IMAGENET_STD/255),
+        ])
+        dataset = torchvision.datasets.ImageFolder(args.data_path, transform=tfms)
+        loader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, num_workers=args.num_workers, drop_last=True)
+    else:
+        pipe = {
+            'image': [RandomResizedCropRGBImageDecoder((args.img_size,args.img_size)),
+                RandomHorizontalFlip(),
+                ToTensor(), 
+                # ToDevice(torch.device('cuda')),
+                ToTorchImage(),
+                # NormalizeImage(IMAGENET_MEAN, IMAGENET_STD, np.float16),            
+                # Convert(torch.float16),
+            ]
+        }
+        loader = Loader(args.data_path, batch_size=args.batch_size, num_workers=args.num_workers, 
+            pipelines=pipe, 
+            batches_ahead=2, distributed=False,seed=0,drop_last=True)
+                
         
     # warmup
     load_one_epoch(args,loader)
@@ -109,10 +116,10 @@ def main(args):
 #%%    
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="FFCV Profiler")
-    parser.add_argument("-r", "--repeat", type=int, default=5, help="number of samples to record one step for profile.")
+    parser.add_argument("-r", "--repeat", type=int, default=3, help="number of samples to record one step for profile.")
     parser.add_argument("-b", "--batch_size", type=int, default=64, help="batch size")
-    parser.add_argument("-p", "--data_path", type=str, help="data path", required=True)
-    parser.add_argument("--use_ffcv",default=False,action="store_true")
+    parser.add_argument("-p", "--data_path", type=str, help="data path", required=True)    
+    parser.add_argument("--no_ffcv",default=False,action="store_true")
     parser.add_argument("--num_workers", type=int, default=10, help="number of workers")
     parser.add_argument("--exp", default=False, action="store_true", help="run experiments")
     parser.add_argument("--img_size", type=int, default=224, help="image size")

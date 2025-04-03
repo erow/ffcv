@@ -13,7 +13,7 @@ This library is derived from [FFCV](https://github.com/libffcv/ffcv) to optimize
 ## Installation
 ### Running Environment
 ```
-conda create -y -n ffcv "python>=3.9" cupy pkg-config "libjpeg-turbo>=3.0.0" opencv numba -c conda-forge
+conda create -y -n ffcv "python>=3.9" cupy pkg-config "libjpeg-turbo>=3.0.0" "opencv=4.10.0" numba -c conda-forge
 conda activate ffcv
 conda install pytorch-cuda=11.3 torchvision  -c pytorch -c nvidia
 pip install .

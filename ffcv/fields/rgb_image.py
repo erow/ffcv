@@ -23,11 +23,15 @@ IMAGE_MODES['jpg'] = 0
 IMAGE_MODES['raw'] = 1
 IMAGE_MODES['png'] = 2
 
-from turbojpeg import TurboJPEG, TJCS_RGB, TJSAMP_444
-turbo_jpeg = TurboJPEG()
-def encode_jpeg(numpy_image, quality,jpeg_subsample=TJSAMP_444):
-    result = turbo_jpeg.encode(numpy_image, quality=quality, pixel_format=TJCS_RGB,jpeg_subsample=jpeg_subsample)
-    result = np.frombuffer(result, np.uint8)
+
+def encode_jpeg(numpy_image, quality):
+    numpy_image = cv2.cvtColor(numpy_image, cv2.COLOR_RGB2BGR)
+    success, result = cv2.imencode('.jpg', numpy_image,
+                                   [int(cv2.IMWRITE_JPEG_QUALITY), quality])
+
+    if not success:
+        raise ValueError("Impossible to encode image in jpeg")
+
     return result.reshape(-1)
 
 def encode_png(numpy_image):
